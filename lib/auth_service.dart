@@ -52,14 +52,28 @@ class AuthService {
         throw Exception('User not found');
       }
 
-      final users = Map<String, dynamic>.from(snapshot.snapshot.value as Map);
+      // Safe type conversion
+      final dynamic snapshotValue = snapshot.snapshot.value;
+      final Map<String, dynamic> users = {};
       
+      if (snapshotValue is Map) {
+        snapshotValue.forEach((key, value) {
+          if (key is String && value is Map) {
+            users[key] = Map<String, dynamic>.from(value);
+          }
+        });
+      }
+
+      if (users.isEmpty) {
+        throw Exception('User not found');
+      }
+
       final userEntry = users.entries.firstWhere(
         (entry) => entry.value['email'] == email,
         orElse: () => throw Exception('User not found'),
       );
 
-      final userData = userEntry.value as Map<String, dynamic>;
+      var userData = userEntry.value;
       final hashedPassword = _hashPassword(password);
 
       if (userData['password'] != hashedPassword) {
