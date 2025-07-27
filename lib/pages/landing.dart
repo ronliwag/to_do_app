@@ -5,7 +5,9 @@ import 'package:to_do_app/pages/calendar.dart';
 import 'package:to_do_app/pages/tasks.dart';
 
 class LandingPage extends StatefulWidget {
-  LandingPage({super.key});
+  final Map<String, dynamic> currentUser;
+  
+  const LandingPage({super.key, required this.currentUser});
 
   @override
   State<LandingPage> createState() => _LandingPageState();
@@ -20,28 +22,30 @@ class _LandingPageState extends State<LandingPage> {
     });
   }
 
-  final List _pages = [
-    //home
-    HomePage(),
-    //tasks
-    TasksPage(),
-    //calendar
-    CalendarPage(),
-    //profile
-    ProfilePage(),
-  ];
+  late final List _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      HomePage(),
+      TasksPage(userId: widget.currentUser['uid']),
+      CalendarPage(),
+      ProfilePage(user: widget.currentUser),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex], // Default to HomePage
+      body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _navigateBottomBar,
-        type: BottomNavigationBarType.fixed, // Ensures labels are always visible
-        backgroundColor: Colors.white, // Recommended for better visibility
-        selectedItemColor: Colors.blue, // Color for selected item
-        unselectedItemColor: Colors.grey, // Color for unselected items
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.task), label: 'Tasks'),

@@ -1,39 +1,37 @@
 import 'package:flutter/material.dart';
 import 'todo_tile.dart';
 import 'dialog_box.dart';
+import '../database_service.dart';
 
 class TasksPage extends StatefulWidget {
-  const TasksPage({super.key});
+  final String userId;
+  
+  const TasksPage({super.key, required this.userId});
 
   @override
   State<TasksPage> createState() => _TasksPageState();
 }
 
 class _TasksPageState extends State<TasksPage> {
-  //text controller
   final _controller = TextEditingController();
-  
-  //list of todo items
-  List todoList = [
-    ["Task 1", false],
-    ["Task 2", false],
-    ["Task 3", true],
-  ];
-  //checkbox state
-  void checkboxChanged(bool? value, int index) {
-    setState(() {
-      todoList[index][1] = !todoList[index][1];
-    });
+  final DatabaseService _databaseService = DatabaseService();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
-  //save new task
+
+  // Save new task
   void saveNewTask() {
-    setState(() {
-      todoList.add([_controller.text, false]);
+    if (_controller.text.trim().isNotEmpty) {
+      _databaseService.addTask(_controller.text.trim(), widget.userId);
       _controller.clear();
-    });
-    Navigator.of(context).pop(); // Close the dialog
+    }
+    Navigator.of(context).pop();
   }
-  //create new task
+
+  // Create new task dialog
   void createNewTask() {
     showDialog(
       context: context,
@@ -41,36 +39,54 @@ class _TasksPageState extends State<TasksPage> {
         return DialogBox(
           controller: _controller,
           onSave: saveNewTask,
-          onCancel: () => {Navigator.of(context).pop(), _controller.clear()},
+          onCancel: () => Navigator.of(context).pop(),
         );
       },
     );
-  }
-  //delete task
-  void deleteTask(int index) {
-    setState(() {
-      todoList.removeAt(index);
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(onPressed: createNewTask,
+      floatingActionButton: FloatingActionButton(
+        onPressed: createNewTask,
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
         tooltip: 'Add Task',
         shape: const CircleBorder(),
-      child: const Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
-      body: ListView.builder(
-        itemCount: todoList.length,
-        itemBuilder: (context, index) {
-          return TodoTile(
-            taskName: todoList[index][0],
-            isCompleted: todoList[index][1],
-            onChanged: (value) => checkboxChanged(value, index),
-            deleteFunction: (context) => deleteTask(index),
+      body: StreamBuilder<List<Map<String, dynamic>>>(
+        stream: _databaseService.getTasks(widget.userId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          final todoList = snapshot.data ?? [];
+
+          return ListView.builder(
+            itemCount: todoList.length,
+            itemBuilder: (context, index) {
+              final task = todoList[index];
+              return TodoTile(
+                taskName: task['taskName'],
+                isCompleted: task['isCompleted'],
+                onChanged: (value) => _databaseService.updateTaskCompletion(
+                  task['id'],
+                  widget.userId,
+                  value ?? false,
+                ),
+                deleteFunction: (context) => _databaseService.deleteTask(
+                  task['id'],
+                  widget.userId,
+                ),
+              );
+            },
           );
         },
       ),

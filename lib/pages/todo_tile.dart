@@ -4,16 +4,15 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 class TodoTile extends StatelessWidget {
   final String taskName;
   final bool isCompleted;
-  Function(bool?)? onChanged;
-  Function(BuildContext)? deleteFunction;
-
+  final Function(bool?)? onChanged;
+  final Function(BuildContext)? deleteFunction;
 
   TodoTile({
-    super.key, 
-    required this.taskName, 
-    required this.isCompleted, 
+    super.key,
+    required this.taskName,
+    required this.isCompleted,
     required this.onChanged,
-    required this.deleteFunction
+    required this.deleteFunction,
   });
 
   @override
@@ -23,11 +22,10 @@ class TodoTile extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: Slidable(
-          // Prevents tile from sliding off-screen
           closeOnScroll: true,
           endActionPane: ActionPane(
-            motion: const DrawerMotion(), // Smooth drawer-like slide
-            extentRatio: 0.22, // Width of the delete action (adjust as needed)
+            motion: const DrawerMotion(),
+            extentRatio: 0.22,
             children: [
               SlidableAction(
                 onPressed: deleteFunction,
@@ -38,7 +36,7 @@ class TodoTile extends StatelessWidget {
                   topRight: Radius.circular(10),
                   bottomRight: Radius.circular(10),
                 ),
-                padding: EdgeInsets.zero, // Fills available space
+                padding: EdgeInsets.zero,
               ),
             ],
           ),
@@ -47,7 +45,7 @@ class TodoTile extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.yellow.shade100,
               boxShadow: [
-                BoxShadow (
+                BoxShadow(
                   blurRadius: 3,
                   offset: const Offset(0, 1),
                 ),
