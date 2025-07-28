@@ -18,9 +18,9 @@ class TodoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         child: Slidable(
           closeOnScroll: true,
           endActionPane: ActionPane(
@@ -33,21 +33,22 @@ class TodoTile extends StatelessWidget {
                 foregroundColor: Colors.white,
                 icon: Icons.delete,
                 borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(10),
-                  bottomRight: Radius.circular(10),
+                  topRight: Radius.circular(12),
+                  bottomRight: Radius.circular(12),
                 ),
-                padding: EdgeInsets.zero,
               ),
             ],
           ),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.yellow.shade100,
+              color: isCompleted ? Colors.grey.shade100 : Colors.white,
+              borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  blurRadius: 3,
-                  offset: const Offset(0, 1),
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
@@ -56,7 +57,10 @@ class TodoTile extends StatelessWidget {
                 Checkbox(
                   value: isCompleted,
                   onChanged: onChanged,
-                  activeColor: Colors.blue.shade300,
+                  activeColor: Theme.of(context).primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -69,7 +73,7 @@ class TodoTile extends StatelessWidget {
                           : TextDecoration.none,
                       color: isCompleted 
                           ? Colors.grey.shade600 
-                          : Colors.black,
+                          : Colors.black87,
                     ),
                   ),
                 ),
