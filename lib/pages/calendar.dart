@@ -5,7 +5,6 @@ import '../database_service.dart';
 
 class CalendarPage extends StatefulWidget {
   final String userId;
-  
   const CalendarPage({super.key, required this.userId});
 
   @override
@@ -59,7 +58,6 @@ class _CalendarPageState extends State<CalendarPage> {
                       _calendarFormat = format;
                     });
                   },
-                  // Update the markerBuilder in TableCalendar
                   calendarBuilders: CalendarBuilders(
                     markerBuilder: (context, date, events) {
                       return StreamBuilder<List<Map<String, dynamic>>>(
@@ -86,11 +84,11 @@ class _CalendarPageState extends State<CalendarPage> {
                   ),
                   calendarStyle: CalendarStyle(
                     todayDecoration: BoxDecoration(
-                      color: const Color(0xFFF6AE2D).withOpacity(0.3), // Primary with opacity
+                      color: const Color(0xFFF6AE2D).withOpacity(0.3),
                       shape: BoxShape.circle,
                     ),
                     selectedDecoration: BoxDecoration(
-                      color: const Color(0xFFF26419), // Secondary
+                      color: const Color(0xFFF26419),
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -160,7 +158,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 ),
                 title: Text(DateFormat('EEEE, MMMM d').format(entry.key)),
                 trailing: Chip(
-                  backgroundColor: const Color(0xFFF6AE2D), // Primary
+                  backgroundColor: const Color(0xFFF6AE2D), 
                   label: Text('${entry.value} task${entry.value > 1 ? 's' : ''}'),
                 ),
               );
@@ -173,8 +171,6 @@ class _CalendarPageState extends State<CalendarPage> {
 
   bool isSameDay(DateTime? date1, DateTime? date2) {
     if (date1 == null || date2 == null) return false;
-    return date1.year == date2.year &&
-           date1.month == date2.month &&
-           date1.day == date2.day;
+    return date1.year == date2.year && date1.month == date2.month && date1.day == date2.day;
   }
 }

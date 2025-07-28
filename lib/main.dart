@@ -13,14 +13,10 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    
-    // Test database connection
     await AuthService().testConnection();
-    
     runApp(const MyApp());
   } catch (e) {
     debugPrint('Fatal initialization error: $e');
-    // Show error UI or exit
   }
 }
 
@@ -33,37 +29,35 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'To-Do App',
       theme: ThemeData(
-        primaryColor: const Color(0xFFF6AE2D), // Primary
+        primaryColor: const Color(0xFFF6AE2D),
         colorScheme: ColorScheme.light(
-          primary: const Color(0xFFF6AE2D), // Primary
-          secondary: const Color(0xFFF26419), // Secondary
-          background: Colors.white, // Background
-          onBackground: const Color(0xFF070A0D), // Text
+          primary: const Color(0xFFF6AE2D),
+          secondary: const Color(0xFFF26419),
+          surface: Colors.white,
+          onSurface: const Color(0xFF070A0D),
         ),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFFF6AE2D), // Primary
-          foregroundColor: Color(0xFF070A0D), // Text
+          backgroundColor: Color(0xFFF6AE2D),
+          foregroundColor: Color(0xFF070A0D),
         ),
         textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: Color(0xFF070A0D)), // Text
-          bodyMedium: TextStyle(color: Color(0xFF070A0D)), // Text
+          bodyLarge: TextStyle(color: Color(0xFF070A0D)),
+          bodyMedium: TextStyle(color: Color(0xFF070A0D)),
         ),
         cardTheme: CardThemeData(
           elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          color: Colors.white, // Background
+          color: Colors.white,
         ),
       ),
       home: const AuthWrapper(),
       onGenerateRoute: (settings) {
-        // Handle routes with arguments
         switch (settings.name) {
           case '/login':
             return MaterialPageRoute(
               builder: (context) => LoginPage(onAuthSuccess: (user) {
-                // This will be handled by AuthWrapper
               }),
             );
           case '/landing':

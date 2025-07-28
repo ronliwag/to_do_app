@@ -24,7 +24,6 @@ class _LoginPageState extends State<LoginPage> {
     errorMessage = null;
   });
 
-  // Enhance your error handling in login.dart
   void handleAuth() async {
     try {
       setState(() => _isLoading = true);
@@ -36,9 +35,8 @@ class _LoginPageState extends State<LoginPage> {
             passwordController.text,
             nameController.text,
           );
-
       if (user != null) {
-        widget.onAuthSuccess(user); // This should trigger navigation
+        widget.onAuthSuccess(user);
       } else {
         setState(() => errorMessage = 'Authentication failed');
       }

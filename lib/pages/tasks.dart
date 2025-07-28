@@ -16,11 +16,10 @@ class TasksPage extends StatefulWidget {
 class _TasksPageState extends State<TasksPage> {
   final _controller = TextEditingController();
   final DatabaseService _databaseService = DatabaseService();
-  DateTime? _selectedCompletionDate;
   DateTime _currentDate = DateTime.now();
   DateTime _selectedDateTime = DateTime.now();
   final PageController _pageController = PageController(initialPage: 1);
-  List<DateTime> _dateRange = []; // Initialize as empty list
+  List<DateTime> _dateRange = [];
   @override
   void initState() {
     super.initState();
@@ -28,7 +27,6 @@ class _TasksPageState extends State<TasksPage> {
   }
 
   void _initializeDateRange() {
-    // Initialize with 7 days (yesterday, today, +5 days ahead)
     setState(() {
       _dateRange = List.generate(7, (index) => 
         DateTime.now().add(Duration(days: index - 1)));
@@ -48,29 +46,17 @@ class _TasksPageState extends State<TasksPage> {
     });
   }
 
-  void _navigateToDate(DateTime date) {
-    final index = _dateRange.indexWhere((d) => isSameDay(d, date));
-    if (index != -1) {
-      _pageController.animateToPage(
-        index,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
   void saveNewTask() {
     if (_controller.text.trim().isNotEmpty) {
-      // Use the selected date from carousel if no specific date was chosen
-      final taskDate = _selectedDateTime ?? _currentDate;
+      final taskDate = _selectedDateTime;
       
       _databaseService.addTask(
         _controller.text.trim(), 
         widget.userId,
-        taskDate, // Use either explicitly selected date or carousel date
+        taskDate,
       ).then((_) {
         _controller.clear();
-        setState(() => _selectedDateTime = _currentDate); // Reset to current carousel date
+        setState(() => _selectedDateTime = _currentDate);
       });
     }
     Navigator.of(context).pop();
@@ -78,7 +64,7 @@ class _TasksPageState extends State<TasksPage> {
 
   void createNewTask() {
     setState(() {
-      _selectedDateTime = _currentDate; // <-- Ensure it starts as the carousel date
+      _selectedDateTime = _currentDate;
     });
 
     showDialog(
@@ -107,13 +93,12 @@ class _TasksPageState extends State<TasksPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: createNewTask,
-        backgroundColor: const Color(0xFFF6AE2D), // Primary
-        foregroundColor: const Color(0xFF070A0D), // Text
+        backgroundColor: const Color(0xFFF6AE2D),
+        foregroundColor: const Color(0xFF070A0D),
         child: const Icon(Icons.add),
       ),
       body: Column(
         children: [
-          // Date Carousel Header
           SizedBox(
             height: 80,
             child: PageView.builder(
@@ -134,7 +119,7 @@ class _TasksPageState extends State<TasksPage> {
                     margin: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: isToday 
-                          ? const Color(0xFFF26419).withOpacity(0.5) // Accent with opacity
+                          ? const Color(0xFFF26419).withOpacity(0.5) 
                           : const Color(0xFFF26419).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -161,7 +146,6 @@ class _TasksPageState extends State<TasksPage> {
               },
             ),
           ),
-          // Tasks List
           Expanded(
             child: StreamBuilder<List<Map<String, dynamic>>>(
               stream: _databaseService.getTasksForDate(widget.userId, _currentDate),
@@ -198,7 +182,6 @@ class _TasksPageState extends State<TasksPage> {
                     ),
                   );
                 }
-
                 return ListView.builder(
                   itemCount: tasks.length,
                   itemBuilder: (context, index) {
@@ -228,8 +211,6 @@ class _TasksPageState extends State<TasksPage> {
   }
 
   bool isSameDay(DateTime date1, DateTime date2) {
-    return date1.year == date2.year &&
-           date1.month == date2.month &&
-           date1.day == date2.day;
+    return date1.year == date2.year && date1.month == date2.month && date1.day == date2.day;
   }
 }

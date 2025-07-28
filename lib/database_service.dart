@@ -20,7 +20,7 @@ class DatabaseService {
         'taskName': taskName,
         'isCompleted': false,
         'createdAt': ServerValue.timestamp,
-        'completionDate': completionDate.millisecondsSinceEpoch, // Store as int
+        'completionDate': completionDate.millisecondsSinceEpoch,
       });
     } catch (e) {
       debugPrint('Error adding task: $e');
@@ -34,7 +34,6 @@ class DatabaseService {
 
       if (snapshotValue == null) return [];
 
-      // Handle different data types from Firebase
       final data = snapshotValue is Map ? Map<String, dynamic>.from(snapshotValue) : {};
 
       return data.entries.map((entry) {
@@ -43,7 +42,6 @@ class DatabaseService {
 
         final taskMap = Map<String, dynamic>.from(value);
         
-        // Safely handle completionDate conversion
         dynamic completionDateMillis = taskMap['completionDate'];
         DateTime? completionDate;
         
@@ -92,7 +90,6 @@ class DatabaseService {
       return tasks.where((task) {
         if (task['completionDate'] == null) return false;
         
-        // Handle both int and DateTime cases
         dynamic completionDate = task['completionDate'];
         DateTime taskDate;
         
@@ -127,9 +124,7 @@ class DatabaseService {
   }
 
   bool _isSameDay(DateTime date1, DateTime date2) {
-    return date1.year == date2.year &&
-           date1.month == date2.month &&
-           date1.day == date2.day;
+    return date1.year == date2.year && date1.month == date2.month && date1.day == date2.day;
   }
 
   Future<void> testConnection() async {

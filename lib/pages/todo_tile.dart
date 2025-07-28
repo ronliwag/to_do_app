@@ -46,8 +46,7 @@ class TodoTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF33658A).withOpacity(0.1), // Accent with opacity
-                  blurRadius: 4,
+                  color: const Color(0xFF33658A).withOpacity(0.1),
                   offset: const Offset(0, 2),
                 ),
               ],
@@ -57,7 +56,7 @@ class TodoTile extends StatelessWidget {
               Checkbox(
                 value: isCompleted,
                 onChanged: onChanged,
-                activeColor: const Color(0xFFF26419), // Secondary
+                activeColor: const Color(0xFFF26419),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(5),
                 ),

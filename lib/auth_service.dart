@@ -52,7 +52,6 @@ class AuthService {
         throw Exception('User not found');
       }
 
-      // Safe type conversion
       final dynamic snapshotValue = snapshot.snapshot.value;
       final Map<String, dynamic> users = {};
       

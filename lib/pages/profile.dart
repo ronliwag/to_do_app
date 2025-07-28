@@ -36,15 +36,15 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 10),
             Card(
               elevation: 2,
-              color: Colors.white, // Background
+              color: Colors.white, 
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
               child: ListTile(
-                leading: Icon(Icons.email, color: Color(0xFFF26419)), // Secondary
-                title: Text("Email", style: TextStyle(color: Color(0xFF070A0D))), // Text
+                leading: Icon(Icons.email, color: Color(0xFFF26419)), 
+                title: Text("Email", style: TextStyle(color: Color(0xFF070A0D))), 
                 subtitle: Text(user['email'] ?? 'No email', 
-                          style: TextStyle(color: Color(0xFF070A0D))), // Text
+                          style: TextStyle(color: Color(0xFF070A0D))),
               ),
             ),
             const SizedBox(height: 10),
@@ -68,7 +68,7 @@ class ProfilePage extends StatelessWidget {
               icon: const Icon(Icons.logout),
               label: const Text("Log Out"),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFF26419), // Secondary
+                backgroundColor: const Color(0xFFF26419),
                 foregroundColor: Colors.white,
               ),
             )

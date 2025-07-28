@@ -13,7 +13,7 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends State<LandingPage> {
-  int _selectedIndex = 0; // Start with Tasks page (index 0)
+  int _selectedIndex = 0;
 
   void _navigateBottomBar(int index) {
     setState(() {
@@ -27,7 +27,7 @@ class _LandingPageState extends State<LandingPage> {
   void initState() {
     super.initState();
     _pages = [
-      TasksPage(userId: widget.currentUser['uid']), // Tasks page is now first
+      TasksPage(userId: widget.currentUser['uid']),
       CalendarPage(userId: widget.currentUser['uid']),
       ProfilePage(user: widget.currentUser),
     ];
@@ -44,7 +44,7 @@ class _LandingPageState extends State<LandingPage> {
               color: Colors.grey.withOpacity(0.3),
               spreadRadius: 2,
               blurRadius: 10,
-              offset: const Offset(0, -2), // Shadow on top of the bar
+              offset: const Offset(0, -2),
             ),
           ],
         ),
@@ -53,7 +53,7 @@ class _LandingPageState extends State<LandingPage> {
           onTap: _navigateBottomBar,
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.white,
-          selectedItemColor: const Color(0xFFF26419), // Your secondary color
+          selectedItemColor: const Color(0xFFF26419), 
           unselectedItemColor: Colors.grey,
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.task), label: 'Tasks'),

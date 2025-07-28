@@ -97,8 +97,8 @@ class _DialogBoxState extends State<DialogBox> {
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFFF6AE2D), // Primary
-            foregroundColor: Color(0xFF070A0D), // Text
+            backgroundColor: Color(0xFFF6AE2D), 
+            foregroundColor: Color(0xFF070A0D),
           ),
           onPressed: widget.onSave,
           child: const Text('Save'),
