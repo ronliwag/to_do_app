@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:to_do_app/pages/home.dart';
 import 'package:to_do_app/pages/profile.dart';
 import 'package:to_do_app/pages/calendar.dart';
 import 'package:to_do_app/pages/tasks.dart';
@@ -14,7 +13,7 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends State<LandingPage> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 0; // Start with Tasks page (index 0)
 
   void _navigateBottomBar(int index) {
     setState(() {
@@ -28,9 +27,8 @@ class _LandingPageState extends State<LandingPage> {
   void initState() {
     super.initState();
     _pages = [
-      const HomePage(),
-      TasksPage(userId: widget.currentUser['uid']),
-      CalendarPage(userId: widget.currentUser['uid']),  // Updated with userId
+      TasksPage(userId: widget.currentUser['uid']), // Tasks page is now first
+      CalendarPage(userId: widget.currentUser['uid']),
       ProfilePage(user: widget.currentUser),
     ];
   }
@@ -47,7 +45,6 @@ class _LandingPageState extends State<LandingPage> {
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.task), label: 'Tasks'),
           BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Calendar'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile')
