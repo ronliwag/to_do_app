@@ -12,7 +12,7 @@ class TodoTile extends StatelessWidget {
     required this.taskName,
     required this.isCompleted,
     required this.onChanged,
-    required this.deleteFunction,
+    required this.deleteFunction, required completionDate,
   });
 
   @override

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:table_calendar/table_calendar.dart'; // Add this dependency in pubspec.yaml
+import 'package:table_calendar/table_calendar.dart';
+import 'package:intl/intl.dart';
+import '../database_service.dart';
 
 class CalendarPage extends StatefulWidget {
-  const CalendarPage({super.key});
+  final String userId;
+  
+  const CalendarPage({super.key, required this.userId});
 
   @override
   State<CalendarPage> createState() => _CalendarPageState();
@@ -12,6 +16,13 @@ class _CalendarPageState extends State<CalendarPage> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+  final DatabaseService _databaseService = DatabaseService();
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDay = _focusedDay;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +35,6 @@ class _CalendarPageState extends State<CalendarPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Calendar Widget
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
@@ -33,13 +43,11 @@ class _CalendarPageState extends State<CalendarPage> {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TableCalendar(
-                  firstDay: DateTime.utc(2020, 1, 1),
-                  lastDay: DateTime.utc(2030, 12, 31),
+                  firstDay: DateTime.now(),
+                  lastDay: DateTime.now().add(const Duration(days: 365)),
                   focusedDay: _focusedDay,
                   calendarFormat: _calendarFormat,
-                  selectedDayPredicate: (day) {
-                    return isSameDay(_selectedDay, day);
-                  },
+                  selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
                   onDaySelected: (selectedDay, focusedDay) {
                     setState(() {
                       _selectedDay = selectedDay;
@@ -51,9 +59,31 @@ class _CalendarPageState extends State<CalendarPage> {
                       _calendarFormat = format;
                     });
                   },
-                  onPageChanged: (focusedDay) {
-                    _focusedDay = focusedDay;
-                  },
+                  // Update the markerBuilder in TableCalendar
+                  calendarBuilders: CalendarBuilders(
+                    markerBuilder: (context, date, events) {
+                      return StreamBuilder<List<Map<String, dynamic>>>(
+                        stream: _databaseService.getTasksForDate(widget.userId, date),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                            return Positioned(
+                              right: 1,
+                              bottom: 1,
+                              child: Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).primaryColor,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      );
+                    },
+                  ),
                   calendarStyle: CalendarStyle(
                     todayDecoration: BoxDecoration(
                       color: Theme.of(context).primaryColor.withOpacity(0.3),
@@ -64,38 +94,12 @@ class _CalendarPageState extends State<CalendarPage> {
                       shape: BoxShape.circle,
                     ),
                   ),
-                  headerStyle: HeaderStyle(
-                    formatButtonVisible: true,
-                    titleCentered: true,
-                    formatButtonDecoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    formatButtonTextStyle: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
                 ),
               ),
             ),
             const SizedBox(height: 20),
-
-            // Tasks for Selected Day
             Expanded(
-              child: _selectedDay == null
-                  ? Center(
-                      child: Text(
-                        'Select a date to view tasks',
-                        style: TextStyle(color: Colors.grey.shade600),
-                      ),
-                    )
-                  : ListView(
-                      children: [
-                        _buildCalendarTaskItem('Team Meeting', '10:00 AM'),
-                        _buildCalendarTaskItem('Lunch with Client', '12:30 PM'),
-                        _buildCalendarTaskItem('Project Deadline', '6:00 PM'),
-                      ],
-                    ),
+              child: _buildTaskSummary(),
             ),
           ],
         ),
@@ -103,30 +107,73 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
-  Widget _buildCalendarTaskItem(String title, String time) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
+  Widget _buildTaskSummary() {
+    return StreamBuilder<List<Map<String, dynamic>>>(
+      stream: _databaseService.getTasksForDateRange(
+        widget.userId, 
+        _focusedDay, 
+        _focusedDay.add(const Duration(days: 30)),
       ),
-      child: ListTile(
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor.withOpacity(0.2),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.circle,
-            color: Theme.of(context).primaryColor,
-            size: 12,
-          ),
-        ),
-        title: Text(title),
-        subtitle: Text(time),
-        trailing: const Icon(Icons.more_vert, size: 20),
-      ),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final tasks = snapshot.data ?? [];
+        final taskCounts = <DateTime, int>{};
+
+        for (final task in tasks) {
+          if (task['completionDate'] != null) {
+            final date = (task['completionDate'] as DateTime);
+            final dateOnly = DateTime(date.year, date.month, date.day);
+            taskCounts.update(dateOnly, (count) => count + 1, ifAbsent: () => 1);
+          }
+        }
+
+        return ListView(
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Upcoming Tasks',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            ...taskCounts.entries.map((entry) {
+              return ListTile(
+                leading: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      DateFormat('d').format(entry.key),
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                title: Text(DateFormat('EEEE, MMMM d').format(entry.key)),
+                trailing: Chip(
+                  label: Text('${entry.value} task${entry.value > 1 ? 's' : ''}'),
+                ),
+              );
+            }).toList(),
+          ],
+        );
+      },
     );
+  }
+
+  bool isSameDay(DateTime? date1, DateTime? date2) {
+    if (date1 == null || date2 == null) return false;
+    return date1.year == date2.year &&
+           date1.month == date2.month &&
+           date1.day == date2.day;
   }
 }

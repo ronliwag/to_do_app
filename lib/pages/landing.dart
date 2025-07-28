@@ -28,9 +28,9 @@ class _LandingPageState extends State<LandingPage> {
   void initState() {
     super.initState();
     _pages = [
-      HomePage(),
+      const HomePage(),
       TasksPage(userId: widget.currentUser['uid']),
-      CalendarPage(),
+      CalendarPage(userId: widget.currentUser['uid']),  // Updated with userId
       ProfilePage(user: widget.currentUser),
     ];
   }

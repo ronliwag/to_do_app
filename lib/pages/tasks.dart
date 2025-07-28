@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'todo_tile.dart';
 import 'dialog_box.dart';
 import '../database_service.dart';
@@ -15,22 +16,71 @@ class TasksPage extends StatefulWidget {
 class _TasksPageState extends State<TasksPage> {
   final _controller = TextEditingController();
   final DatabaseService _databaseService = DatabaseService();
+  DateTime? _selectedCompletionDate;
+  DateTime _currentDate = DateTime.now();
+  DateTime _selectedDateTime = DateTime.now();
+  final PageController _pageController = PageController(initialPage: 1);
+  List<DateTime> _dateRange = []; // Initialize as empty list
+  @override
+  void initState() {
+    super.initState();
+    _initializeDateRange();
+  }
+
+  void _initializeDateRange() {
+    // Initialize with 7 days (yesterday, today, +5 days ahead)
+    setState(() {
+      _dateRange = List.generate(7, (index) => 
+        DateTime.now().add(Duration(days: index - 1)));
+    });
+  }
 
   @override
   void dispose() {
     _controller.dispose();
+    _pageController.dispose();
     super.dispose();
+  }
+
+  void _onPageChanged(int index) {
+    setState(() {
+      _currentDate = _dateRange[index];
+    });
+  }
+
+  void _navigateToDate(DateTime date) {
+    final index = _dateRange.indexWhere((d) => isSameDay(d, date));
+    if (index != -1) {
+      _pageController.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   void saveNewTask() {
     if (_controller.text.trim().isNotEmpty) {
-      _databaseService.addTask(_controller.text.trim(), widget.userId);
-      _controller.clear();
+      // Use the selected date from carousel if no specific date was chosen
+      final taskDate = _selectedDateTime ?? _currentDate;
+      
+      _databaseService.addTask(
+        _controller.text.trim(), 
+        widget.userId,
+        taskDate, // Use either explicitly selected date or carousel date
+      ).then((_) {
+        _controller.clear();
+        setState(() => _selectedDateTime = _currentDate); // Reset to current carousel date
+      });
     }
     Navigator.of(context).pop();
   }
 
   void createNewTask() {
+    setState(() {
+      _selectedDateTime = _currentDate; // <-- Ensure it starts as the carousel date
+    });
+
     showDialog(
       context: context,
       builder: (context) {
@@ -38,6 +88,10 @@ class _TasksPageState extends State<TasksPage> {
           controller: _controller,
           onSave: saveNewTask,
           onCancel: () => Navigator.of(context).pop(),
+          onDateTimeSelected: (dateTime) {
+            setState(() => _selectedDateTime = dateTime);
+          },
+          initialDate: _currentDate,
         );
       },
     );
@@ -55,79 +109,127 @@ class _TasksPageState extends State<TasksPage> {
         onPressed: createNewTask,
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: const Icon(Icons.add, size: 28),
+        child: const Icon(Icons.add),
       ),
-      body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: StreamBuilder<List<Map<String, dynamic>>>(
-          stream: _databaseService.getTasks(widget.userId),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            }
-
-            final todoList = snapshot.data ?? [];
-
-            if (todoList.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.task_outlined,
-                      size: 64,
-                      color: Colors.grey.shade400,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No tasks yet',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Tap the + button to add a task',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade500,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            return ListView.builder(
-              itemCount: todoList.length,
+      body: Column(
+        children: [
+          // Date Carousel Header
+          SizedBox(
+            height: 80,
+            child: PageView.builder(
+              controller: _pageController,
+              onPageChanged: _onPageChanged,
+              itemCount: _dateRange.length,
               itemBuilder: (context, index) {
-                final task = todoList[index];
-                return TodoTile(
-                  taskName: task['taskName'],
-                  isCompleted: task['isCompleted'],
-                  onChanged: (value) => _databaseService.updateTaskCompletion(
-                    task['id'],
-                    widget.userId,
-                    value ?? false,
+                final date = _dateRange[index];
+                final isToday = isSameDay(date, DateTime.now());
+                
+                return GestureDetector(
+                  onTap: () => _pageController.animateToPage(
+                    index,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
                   ),
-                  deleteFunction: (context) => _databaseService.deleteTask(
-                    task['id'],
-                    widget.userId,
+                  child: Container(
+                    margin: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isToday 
+                          ? Theme.of(context).primaryColor.withOpacity(0.2)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          DateFormat('EEE').format(date),
+                          style: TextStyle(
+                            fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                          ),
+                        ),
+                        Text(
+                          DateFormat('d').format(date),
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
-            );
-          },
-        ),
+            ),
+          ),
+          // Tasks List
+          Expanded(
+            child: StreamBuilder<List<Map<String, dynamic>>>(
+              stream: _databaseService.getTasksForDate(widget.userId, _currentDate),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+
+                final tasks = snapshot.data ?? [];
+
+                if (tasks.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.task_outlined,
+                          size: 64,
+                          color: Colors.grey.shade400,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No tasks for ${DateFormat('MMM d').format(_currentDate)}',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: tasks.length,
+                  itemBuilder: (context, index) {
+                    final task = tasks[index];
+                    return TodoTile(
+                      taskName: task['taskName'],
+                      isCompleted: task['isCompleted'],
+                      onChanged: (value) => _databaseService.updateTaskCompletion(
+                        task['id'],
+                        widget.userId,
+                        value ?? false,
+                      ),
+                      deleteFunction: (context) => _databaseService.deleteTask(
+                        task['id'],
+                        widget.userId,
+                      ),
+                      completionDate: task['completionDate'],
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  bool isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+           date1.month == date2.month &&
+           date1.day == date2.day;
   }
 }
