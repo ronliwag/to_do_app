@@ -42,11 +42,11 @@ class TodoTile extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isCompleted ? Colors.grey.shade100 : Colors.white,
+              color: isCompleted ? Colors.grey.shade100 : Colors.grey.shade100,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: const Color(0xFF33658A).withOpacity(0.1), // Accent with opacity
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -54,14 +54,14 @@ class TodoTile extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Checkbox(
-                  value: isCompleted,
-                  onChanged: onChanged,
-                  activeColor: Theme.of(context).primaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
+              Checkbox(
+                value: isCompleted,
+                onChanged: onChanged,
+                activeColor: const Color(0xFFF26419), // Secondary
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
                 ),
+              ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(

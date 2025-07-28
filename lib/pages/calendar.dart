@@ -86,11 +86,11 @@ class _CalendarPageState extends State<CalendarPage> {
                   ),
                   calendarStyle: CalendarStyle(
                     todayDecoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withOpacity(0.3),
+                      color: const Color(0xFFF6AE2D).withOpacity(0.3), // Primary with opacity
                       shape: BoxShape.circle,
                     ),
                     selectedDecoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
+                      color: const Color(0xFFF26419), // Secondary
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -160,6 +160,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 ),
                 title: Text(DateFormat('EEEE, MMMM d').format(entry.key)),
                 trailing: Chip(
+                  backgroundColor: const Color(0xFFF6AE2D), // Primary
                   label: Text('${entry.value} task${entry.value > 1 ? 's' : ''}'),
                 ),
               );

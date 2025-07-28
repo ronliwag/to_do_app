@@ -35,7 +35,7 @@ class _DialogBoxState extends State<DialogBox> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Add New Task'),
+      title: const Text('Add New Task',style: TextStyle(color: Color(0xFF070A0D)),), 
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -93,9 +93,13 @@ class _DialogBoxState extends State<DialogBox> {
       actions: [
         TextButton(
           onPressed: widget.onCancel,
-          child: const Text('Cancel'),
+          child: Text('Cancel', style: TextStyle(color: Color(0xFFF26419))),
         ),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color(0xFFF6AE2D), // Primary
+            foregroundColor: Color(0xFF070A0D), // Text
+          ),
           onPressed: widget.onSave,
           child: const Text('Save'),
         ),

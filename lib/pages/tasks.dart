@@ -107,8 +107,8 @@ class _TasksPageState extends State<TasksPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: createNewTask,
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF6AE2D), // Primary
+        foregroundColor: const Color(0xFF070A0D), // Text
         child: const Icon(Icons.add),
       ),
       body: Column(
@@ -134,8 +134,8 @@ class _TasksPageState extends State<TasksPage> {
                     margin: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: isToday 
-                          ? Theme.of(context).primaryColor.withOpacity(0.2)
-                          : Colors.transparent,
+                          ? const Color(0xFFF26419).withOpacity(0.5) // Accent with opacity
+                          : const Color(0xFFF26419).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(

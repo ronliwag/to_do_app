@@ -33,7 +33,28 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'To-Do App',
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        primaryColor: const Color(0xFFF6AE2D), // Primary
+        colorScheme: ColorScheme.light(
+          primary: const Color(0xFFF6AE2D), // Primary
+          secondary: const Color(0xFFF26419), // Secondary
+          background: Colors.white, // Background
+          onBackground: const Color(0xFF070A0D), // Text
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFF6AE2D), // Primary
+          foregroundColor: Color(0xFF070A0D), // Text
+        ),
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Color(0xFF070A0D)), // Text
+          bodyMedium: TextStyle(color: Color(0xFF070A0D)), // Text
+        ),
+        cardTheme: CardThemeData(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          color: Colors.white, // Background
+        ),
       ),
       home: const AuthWrapper(),
       onGenerateRoute: (settings) {
